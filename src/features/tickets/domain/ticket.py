@@ -7,17 +7,21 @@ from datetime import datetime
 @dataclass
 class Ticket:
     id: UUID
-    category: Category
-    severity: Severity
+    category: str
+    severity: str
     summary: str
     message: str
-    status: Status
+    status: str
     submitted_at: datetime
     updated_at: datetime
     resolved_at: datetime | None = None
 
     @classmethod
-    def create(cls, *, category, severity, summary, message) -> "Ticket":
+    def create(
+        cls, *, category: str, severity: str, summary: str, message: str
+    ) -> "Ticket":
+        cls._validate(summary, message)
+
         ticket = cls(
             id=uuid4(),
             category=category,
@@ -29,3 +33,11 @@ class Ticket:
             updated_at=datetime.now(),
         )
         return ticket
+
+    @classmethod
+    def _validate(cls, summary: str, message: str):
+        if not summary or summary.strip() == "":
+            raise ValueError("Summary message cannot be empty")
+
+        if not message or message.strip() == "":
+            raise ValueError("Message cannot be empty")
