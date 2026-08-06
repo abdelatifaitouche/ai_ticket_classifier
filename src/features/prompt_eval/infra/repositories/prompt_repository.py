@@ -32,7 +32,7 @@ class PromptRepository:
         self.session.add_all(
             [
                 prompt_orm,
-                prompt_versions_orm,
+                *prompt_versions_orm,
             ]
         )
 

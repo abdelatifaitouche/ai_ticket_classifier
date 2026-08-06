@@ -13,7 +13,8 @@ def get_db():
     with SessionLocal() as session:
         try:
             yield session
-        except:
+        except Exception as e:
             session.rollback()
+            raise e
         finally:
             session.close()

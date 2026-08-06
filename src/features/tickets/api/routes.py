@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src.features.tickets.api.schemas.ticket import CreateTicket, TicketRead
 from src.features.tickets.services.classifiers.gemini_classifier import GeminiClassifier
-from src.infra.llm.gemini_client import get_gemini_client, GeminiClient
+from src.infra.llm.gemini_client import GeminiClient
 from src.features.tickets.application.ticket_usecases import TicketUC
 from src.infra.db.session import get_db
 from src.features.tickets.infra.repostories.ticket_repository import TicketRepository
