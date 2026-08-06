@@ -13,15 +13,6 @@ from src.infra.llm.gemini_client import get_gemini_client
 from pydantic import BaseModel, Field
 
 
-class Question(BaseModel):
-    question: str = Field(description="question generate the ai ticket triage")
-
-
-class TestUseCase(BaseModel):
-    title: str = Field(description="test title.")
-    questions: list[Question] = Field(description="a list of questions generated.")
-
-
 class Interaction(BaseModel):
     prompt: str = Field(description="prompt provided by the system.")
     question: str = Field(description="user asked question.")
