@@ -2,6 +2,7 @@ from anthropic import Anthropic
 from src.core.config import settings
 from src.core.llm.base import BaseLLMClient
 from typing import Any
+from pydantic import BaseModel
 
 claude_client = None
 
@@ -28,25 +29,40 @@ class ClaudeClient(BaseLLMClient):
 
     def generate(
         self,
-        messages: list[dict[str, Any]],
-        system_prompt: str | None,
-        max_tokens: int = 512,
-        temperature: float = 0.2,
-        model: str = "claude-sonnet-4.6",
-        tool_choice: dict[str, str] | None = None,
-        tools: list[dict[str, Any]] | None = None,
-    ):
+        message: str,
+        model: str,
+        output_shape: type[BaseModel],
+        system_prompt: str | None = None,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
+    ) -> type[BaseModel]:
+        messages = {
+            "role": "user",
+            "content": message,
+        }
+
+        output_config = {
+            "format": {
+                "type": "json_schema",
+                "schema": output_shape.model_json_schema(),
+            },
+        }
+
+        if not max_tokens:
+            max_tokens = 512
+
+        if not temperature:
+            temperature = 0.2
+
         config: dict[str, Any] = {
             "model": model,
             "max_tokens": max_tokens,
             "temperature": temperature,
-            "messages": messages,
+            "messages": [
+                messages,
+            ],
+            "output_config": output_config,
         }
-
-        if tool_choice:
-            if tools:
-                config["tool_choice"] = tool_choice
-                config["tools"] = tools
 
         if system_prompt:
             config["system"] = system_prompt
@@ -55,7 +71,9 @@ class ClaudeClient(BaseLLMClient):
             **config,
         )
 
-        return output
+        raw = output.content[0].text
+
+        return output_shape.model_validate_json(raw)
 
 
 def get_claude_client():

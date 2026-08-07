@@ -2,6 +2,7 @@ from google import genai
 from src.core.config import settings
 from src.core.llm.base import BaseLLMClient
 from typing import Any, Optional
+from pydantic import BaseModel
 
 
 class GeminiClient(BaseLLMClient):
@@ -12,7 +13,7 @@ class GeminiClient(BaseLLMClient):
 
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
+            cls._initialized = False
 
         return cls._instance
 
@@ -27,17 +28,26 @@ class GeminiClient(BaseLLMClient):
 
     def generate(
         self,
+        message: str,
         model: str,
-        input: str,
-        response_format: dict[str, str] | None = None,
-    ):
+        output_shape: type[BaseModel],
+        system_prompt: str | None = None,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
+    ) -> type[BaseModel]:
+
+        response_format = {
+            "type": "text",
+            "mime_type": "application/json",
+            "schema": output_shape.model_json_schema(),
+        }
 
         config: dict[str, Any] = {
             "model": model,
-            "input": input,
+            "input": message,
+            "response_format": response_format,
         }
 
-        if response_format:
-            config["response_format"] = response_format
+        output = self.client.interactions.create(**config)
 
-        return self.client.interactions.create(**config)
+        return output_shape.model_validate_json(output.output_text)
