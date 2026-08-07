@@ -7,6 +7,7 @@ from src.features.prompt_eval.infra.repositories.prompt_repository import (
 )
 from src.infra.db.session import get_db
 from src.features.prompt_eval.application.commands import CreatePrompt
+from uuid import UUID
 
 router = APIRouter(prefix="/prompt")
 
@@ -28,3 +29,11 @@ def create_prompt(
         ),
     )
     return prompt
+
+
+@router.get("/{prompt_id}")
+def get_prompt_by_id(
+    prompt_id: UUID,
+    uc: PromptUC = Depends(get_uc),
+):
+    return uc.get_prompt_by_id(prompt_id)

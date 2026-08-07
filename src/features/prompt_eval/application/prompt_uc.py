@@ -4,6 +4,7 @@ from src.features.prompt_eval.infra.repositories.prompt_repository import (
 )
 from src.features.prompt_eval.application.commands import CreatePrompt
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 
 class PromptUC:
@@ -23,3 +24,16 @@ class PromptUC:
         self.session.commit()
 
         return prompt
+
+    def get_prompt_by_id(self, prompt_id: UUID):
+
+        prompt: Prompt | None = self.repo.get_by_id(
+            prompt_id,
+        )
+
+        if not prompt:
+            raise ValueError(
+                "prompt not found",
+            )
+
+        return Prompt

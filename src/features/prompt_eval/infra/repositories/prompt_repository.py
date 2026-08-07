@@ -1,4 +1,5 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
+from sqlalchemy import select
 from src.features.prompt_eval.infra.models.prompt import Prompt as PromptDB
 from src.features.prompt_eval.infra.models.prompt_version import (
     PromptVersion as PromptVersionDB,
@@ -38,3 +39,32 @@ class PromptRepository:
 
         self.session.flush()
         return prompt
+
+    def get_by_id(self, prompt_id: UUID) -> Prompt | None:
+        stmt = (
+            select(PromptDB)
+            .where(PromptDB.id == prompt_id)
+            .options(
+                selectinload(PromptDB.versions),
+            )
+        )
+        prompt: PromptDB | None = self.session.execute(stmt).scalar_one_or_none()
+
+        if not prompt:
+            return None
+
+        return Prompt(
+            id=prompt.id,
+            task=prompt.task,
+            versions=[
+                PromptVersion(
+                    id=v.id,
+                    prompt_id=v.prompt_id,
+                    text=v.prompt_text,
+                    version=v.version,
+                    is_current=v.is_current,
+                    created_at=v.created_at,
+                )
+                for v in prompt.versions
+            ],
+        )
