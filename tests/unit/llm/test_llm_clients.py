@@ -24,6 +24,9 @@ class Recipe(BaseModel):
     )
 
 
+SYSTEM_PROMPT: str = "You are a masterclass chef, answer this question"
+
+
 class TestLlmClient:
     def test_gemini_client(self):
 
@@ -31,6 +34,7 @@ class TestLlmClient:
 
         receipe = gemini_client.generate(
             message=message,
+            system_prompt=SYSTEM_PROMPT,
             model="gemini-3.5-flash",
             output_shape=Recipe,
         )
@@ -43,6 +47,7 @@ class TestLlmClient:
 
         receipe = claude_client.generate(
             message=message,
+            system_prompt=SYSTEM_PROMPT,
             model="claude-haiku-4-5",
             output_shape=Recipe,
         )

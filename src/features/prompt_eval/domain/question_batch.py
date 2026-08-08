@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from .question import Question
-from uuid import UUID
+from uuid import UUID, uuid4
 
 
 @dataclass
@@ -10,5 +10,9 @@ class QuestionBatch:
     questions: list[Question]
 
     @classmethod
-    def create(cls, *, topic: str):
-        return
+    def create(cls, *, topic: str, questions: list[Question]) -> "QuestionBatch":
+        return cls(
+            id=uuid4(),
+            topic=topic,
+            questions=questions,
+        )

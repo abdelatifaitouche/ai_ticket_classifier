@@ -34,7 +34,7 @@ class GeminiClient(BaseLLMClient):
         system_prompt: str | None = None,
         max_tokens: int | None = None,
         temperature: float | None = None,
-    ) -> type[BaseModel]:
+    ) -> BaseModel:
 
         response_format = {
             "type": "text",
@@ -47,6 +47,9 @@ class GeminiClient(BaseLLMClient):
             "input": message,
             "response_format": response_format,
         }
+
+        if system_prompt:
+            config["system_instruction"] = system_prompt
 
         output = self.client.interactions.create(**config)
 

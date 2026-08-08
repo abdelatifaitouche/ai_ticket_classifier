@@ -1,26 +1,14 @@
 from src.core.llm.base import BaseLLMClient
-from pydantic import BaseModel, Field
-
-""" 
-This code wont work, its just a placeholder to
-strucutre everyting, and get a clean overview on how the
-implemenation and interface of the LLM clients should be
-
-"""
-
-
-class Question(BaseModel):
-    question: str = Field(description="question generate the ai ticket triage")
-
-
-class QuestionBatch(BaseModel):
-    topic: str = Field(description="the batch topic")
-    questions: list[Question] = Field(description="a list of questions generated.")
+from src.infra.llm.gemini_client import GeminiClient
+from src.infra.llm.claude_client import ClaudeClient
+from pydantic import BaseModel, Field, ConfigDict
+from src.features.prompt_eval.application.dtos.batch import QuestionBatch
 
 
 class ModelDataGenerator:
-    def __init__(self, client: BaseLLMClient):
+    def __init__(self, client: BaseLLMClient, model: str):
         self.client: BaseLLMClient = client
+        self.model: str = model
 
     def generate(self, test_size: int, topic: str) -> QuestionBatch:
         PROMPT: str = f"""
@@ -28,18 +16,8 @@ class ModelDataGenerator:
             the main prompt is effective, generate {test_size} questions for this {topic}, the questions should not be the same, nor
             addressing the same issue,
         """
-
-        response_format = (
-            {
-                "type": "text",
-                "mime_type": "application/json",
-                "schema": QuestionBatch.model_json_schema(),
-            },
-        )
         generated_questions = self.client.generate(
-            model="gemini-3.5-flash",
-            input=PROMPT,
-            response_format=response_format,
+            model=self.model, message=PROMPT, output_shape=QuestionBatch
         )
 
-        return QuestionBatch.model_validate_json(generated_questions.output_text)
+        return generated_questions

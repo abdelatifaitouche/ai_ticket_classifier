@@ -12,7 +12,7 @@ class BaseLLMClient(ABC):
         system_prompt: str | None = None,
         max_tokens: int | None = None,
         temperature: float | None = None,
-    ) -> type[BaseModel]:
+    ) -> BaseModel:
         raise NotImplementedError(
             "Generate method on llm client needs to be implemented"
         )

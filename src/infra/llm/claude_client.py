@@ -35,7 +35,7 @@ class ClaudeClient(BaseLLMClient):
         system_prompt: str | None = None,
         max_tokens: int | None = None,
         temperature: float | None = None,
-    ) -> type[BaseModel]:
+    ) -> BaseModel:
         messages = {
             "role": "user",
             "content": message,
